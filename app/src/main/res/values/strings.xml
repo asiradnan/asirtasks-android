@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Asir Tasks</string>
+    <string name="add_new_task">Add new task</string>
+    <string name="edit_task">Edit Task</string>
+    <string name="back_button">Back Button</string>
+    <string name="save_task">Save Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="no_tasks_yet">No tasks yet</string>
+    <string name="mark_uncompleted">Mark uncompleted</string>
+    <string name="mark_completed">Mark completed</string>
+</resources>
