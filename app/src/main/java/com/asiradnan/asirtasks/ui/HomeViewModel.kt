@@ -1,8 +1,6 @@
 package com.asiradnan.asirtasks.ui
 
 import UserPreferencesManager
-import android.util.Log
-import android.util.Log.v
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo

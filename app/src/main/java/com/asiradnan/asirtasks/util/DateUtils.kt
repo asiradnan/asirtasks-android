@@ -66,7 +66,7 @@ private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
 }
 
 fun Long.toTimeStr(): String {
-    val date = java.util.Date(this)
-    val formatter = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+    val date = Date(this)
+    val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
     return formatter.format(date)
 }

@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat.enableEdgeToEdge
 import com.asiradnan.asirtasks.ui.theme.AsirTasksTheme
 
 class MainActivity : ComponentActivity() {
