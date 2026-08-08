@@ -38,9 +38,6 @@ class HomeViewModel(
             _isRefreshing.value = true
             try {
                 tasksRepository.refreshTasksFromServer()
-                // Optional: Wait for a short bit or observe the specific work state here
-                // to keep the pull-spinner visible longer.
-                kotlinx.coroutines.delay(1000)
             } finally {
                 _isRefreshing.value = false
             }
@@ -80,7 +77,7 @@ class HomeViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
-        initialValue = SyncStatus.NotLoggedIn
+        initialValue = SyncStatus.Offline
     )
 
     suspend fun toggleTaskCompletion(task: Task, isCompleted: Boolean) {

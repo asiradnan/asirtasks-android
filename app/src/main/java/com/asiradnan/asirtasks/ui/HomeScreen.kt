@@ -41,7 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -63,8 +66,8 @@ fun HomeScreen(
     val homeUiState by viewModel.homeUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val syncStatus by viewModel.syncStatus.collectAsState() // 1. Collect state
-    var showSyncDialog by remember { mutableStateOf(false) } // State for the tap dialog
+    val syncStatus by viewModel.syncStatus.collectAsState()
+    var showSyncDialog by remember { mutableStateOf(false) }
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
     val isDarkModePref by viewModel.isDarkMode.collectAsState()
     val effectiveDarkMode = isDarkModePref ?: androidx.compose.foundation.isSystemInDarkTheme()
@@ -89,7 +92,9 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = navigateToTaskAdd,
-                modifier = Modifier.padding(8.dp).size(60.dp)
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(60.dp)
             ) {
                 Icon(
                     Filled.Add,
@@ -186,8 +191,8 @@ fun HomeBody(
                 }
             }
             if (completedTaskList.isNotEmpty()) {
-                 if (incompletedTaskList.isNotEmpty())
-                     item { Spacer(Modifier.height(12.dp)) }
+                if (incompletedTaskList.isNotEmpty())
+                    item { Spacer(Modifier.height(12.dp)) }
                 item {
                     Column(
                         modifier = Modifier
@@ -218,7 +223,9 @@ fun HomeBody(
                             completedTaskList.forEach { task ->
                                 TaskCard(
                                     task = task,
-                                    modifier = Modifier.clickable { onTaskClick(task.uuid) },
+                                    modifier = Modifier
+                                        .clickable { onTaskClick(task.uuid) }
+                                        .animateItem(),
                                     onCheckedChange = { isCompleted ->
                                         onToggleTaskCompletion(task, isCompleted)
                                     }
@@ -252,7 +259,9 @@ fun TaskCard(
             Text(
                 text = task.name,
                 fontSize = 18.sp,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
+                ),
             )
             if (task.time != null || task.date != null) {
                 Spacer(modifier = Modifier.height(4.dp))
@@ -282,8 +291,12 @@ fun CircularCheckbox(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val haptic = LocalHapticFeedback.current
     IconButton(
-        onClick = { onCheckedChange(!checked) }) {
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onCheckedChange(!checked)
+        }) {
         Icon(
             imageVector = if (checked) Filled.Check else Icons.Outlined.Circle,
             contentDescription = if (checked) "Uncheck task" else "Check task",

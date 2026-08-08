@@ -11,6 +11,7 @@ import com.asiradnan.asirtasks.network.toNetwork
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import java.io.IOException
 
 class SyncWorker(
     appContext: Context,
@@ -95,12 +96,17 @@ class SyncWorker(
 
                 // PHASE 4: PULL DELETIONS
                 for (localTask in localTasks) {
-                    if (!remoteTaskIds.contains(localTask.uuid)) taskDao.delete(localTask)
+                    if (localTask.isSynced && !remoteTaskIds.contains(localTask.uuid)) taskDao.delete(
+                        localTask
+                    )
                 }
                 container.userPreferencesManager.saveLastSyncTime(System.currentTimeMillis())
+
                 Result.success()
-            } catch (e: Exception) {
-                Log.e("SyncWorker", "Sync failed", e)
+            } catch (e: HttpException) {
+                if (e.code() == 401 || e.code() == 403)  Result.failure()
+                Result.retry()
+            } catch (e: IOException) {
                 Result.retry()
             }
         }

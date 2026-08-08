@@ -53,8 +53,10 @@ import com.asiradnan.asirtasks.util.getMinuteFromMillis
 import com.asiradnan.asirtasks.util.toFormattedTime
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 @Composable
 fun TaskAddScreen(
@@ -110,7 +112,8 @@ fun TaskEditScreen(
 
                 },
                 showDeleteButton = true,
-                disableSaveButton = !viewModel.taskUiState.isEntryValid, canNavigateBack = true,
+                disableSaveButton = !viewModel.taskUiState.isEntryValid,
+                canNavigateBack = true,
                 navigateUp = navigateBack
             )
         },
@@ -125,26 +128,22 @@ fun TaskEditScreen(
             },
             isEditing = true
         )
-        if (showDeleteConfirmation)
-            ConfirmDeletionAlert(
-                onDismiss = { showDeleteConfirmation = false },
-                onConfirm = {
-                    showDeleteConfirmation = false
-                    coroutineScope.launch {
-                        viewModel.deleteTask()
-                        navigateBack()
-                    }
-                }
-            )
+        if (showDeleteConfirmation) ConfirmDeletionAlert(onDismiss = {
+            showDeleteConfirmation = false
+        }, onConfirm = {
+            showDeleteConfirmation = false
+            coroutineScope.launch {
+                viewModel.deleteTask()
+                navigateBack()
+            }
+        })
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmDeletionAlert(
-    modifier: Modifier = Modifier,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    modifier: Modifier = Modifier, onDismiss: () -> Unit, onConfirm: () -> Unit
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -159,8 +158,7 @@ fun ConfirmDeletionAlert(
             TextButton(onClick = onDismiss) {
                 Text(text = "Cancel")
             }
-        }
-    )
+        })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -176,14 +174,6 @@ fun TaskBody(
     ) {
         var showDatePicker by remember { mutableStateOf(false) }
         var showTimePicker by remember { mutableStateOf(false) }
-
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = taskDetails.date ?: System.currentTimeMillis()
-        )
-        val timePickerState = rememberTimePickerState(
-            initialHour = taskDetails.time?.getHourFromMillis() ?: 12,
-            initialMinute = taskDetails.time?.getMinuteFromMillis() ?: 0
-        )
 
         Column(
             modifier = Modifier
@@ -215,9 +205,7 @@ fun TaskBody(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showDatePicker = true }
-                        .padding(start = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                        .padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CalendarMonth, contentDescription = null)
                     Spacer(Modifier.width(12.dp))
                     Text(
@@ -243,9 +231,7 @@ fun TaskBody(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showTimePicker = true }
-                        .padding(start = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                        .padding(start = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.AccessTime, contentDescription = null)
                     Spacer(Modifier.width(12.dp))
                     Text(
@@ -263,6 +249,9 @@ fun TaskBody(
             }
 
             if (showDatePicker) {
+                val datePickerState = rememberDatePickerState(
+                    initialSelectedDateMillis = taskDetails.date ?: System.currentTimeMillis()
+                )
                 DatePickerDialog(
                     modifier = Modifier.scale(.85f),
                     onDismissRequest = { showDatePicker = false },
@@ -270,14 +259,23 @@ fun TaskBody(
                         TextButton(onClick = {
                             val selectedDate =
                                 datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                            onValueChange(taskDetails.copy(date = selectedDate))
+
+                            // Normalize to midnight UTC so tasks on the same day have identical date values
+                            val normalizedDate =
+                                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                                    timeInMillis = selectedDate
+                                    set(Calendar.HOUR_OF_DAY, 0)
+                                    set(Calendar.MINUTE, 0)
+                                    set(Calendar.SECOND, 0)
+                                    set(Calendar.MILLISECOND, 0)
+                                }.timeInMillis
+                            onValueChange(taskDetails.copy(date = normalizedDate))
                             showDatePicker = false
                         }) { Text("OK") }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
-                    }
-                ) {
+                    }) {
                     DatePicker(
                         state = datePickerState,
                         showModeToggle = false, // Removes the edit mode toggle
@@ -288,26 +286,24 @@ fun TaskBody(
             }
 
             if (showTimePicker) {
-                AlertDialog(
-                    onDismissRequest = { showTimePicker = false },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            // Calculate milliseconds since midnight: (hours * 3600 + minutes * 60) * 1000
-                            val offsetMillis =
-                                (timePickerState.hour * 3600L + timePickerState.minute * 60L) * 1000L
-                            onValueChange(taskDetails.copy(time = offsetMillis))
-                            showTimePicker = false
-                        }) { Text("OK") }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
-                    },
-                    text = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            TimePicker(state = timePickerState)
-                        }
-                    }
+                val timePickerState = rememberTimePickerState(
+                    initialHour = taskDetails.time?.getHourFromMillis() ?: 12,
+                    initialMinute = taskDetails.time?.getMinuteFromMillis() ?: 0
                 )
+                AlertDialog(onDismissRequest = { showTimePicker = false }, confirmButton = {
+                    TextButton(onClick = {
+                        val offsetMillis =
+                            (timePickerState.hour * 3600L + timePickerState.minute * 60L) * 1000L
+                        onValueChange(taskDetails.copy(time = offsetMillis))
+                        showTimePicker = false
+                    }) { Text("OK") }
+                }, dismissButton = {
+                    TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+                }, text = {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        TimePicker(state = timePickerState)
+                    }
+                })
             }
         }
 
