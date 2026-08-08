@@ -18,7 +18,8 @@ class TaskEditViewModel(
     savedStateHandle: SavedStateHandle,
     private val tasksRepository: TasksRepository
 ) : ViewModel() {
-    private val taskId: Int = checkNotNull(savedStateHandle["taskId"])
+
+    private val taskId: String = checkNotNull(savedStateHandle["taskId"])
 
     var taskUiState by mutableStateOf(TaskUiState())
         private set

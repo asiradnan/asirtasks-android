@@ -1,6 +1,7 @@
 package com.asiradnan.asirtasks.ui
 
 import com.asiradnan.asirtasks.data.Task
+import java.util.UUID
 
 data class TaskUiState(
     val taskDetails: TaskDetails = TaskDetails(),
@@ -8,7 +9,7 @@ data class TaskUiState(
 )
 
 data class TaskDetails(
-    val id: Int = 0,
+    val uuid: String = UUID.randomUUID().toString(),
     val name: String = "",
     val isCompleted: Boolean = false,
     val date: Long? = null,
@@ -16,7 +17,7 @@ data class TaskDetails(
 )
 
 fun TaskDetails.toTask(): Task = Task(
-    id = id,
+    uuid = uuid,
     name = name,
     isCompleted = isCompleted,
     date = date,
@@ -24,7 +25,7 @@ fun TaskDetails.toTask(): Task = Task(
 )
 
 fun Task.toTaskDetails(): TaskDetails = TaskDetails(
-    id = id,
+    uuid = uuid,
     name = name,
     isCompleted = isCompleted,
     date = date,

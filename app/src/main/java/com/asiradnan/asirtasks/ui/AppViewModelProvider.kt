@@ -6,14 +6,21 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.asiradnan.asirtasks.AsirTasksApplication
+import com.asiradnan.asirtasks.auth.ui.LoginViewModel
 
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            HomeViewModel(asirTasksApplication().container.tasksRepository)
+            HomeViewModel(
+                asirTasksApplication().container.tasksRepository,
+                authRepository = asirTasksApplication().container.authRepository,
+                userPreferencesManager = asirTasksApplication().container.userPreferencesManager,
+                workManager = asirTasksApplication().container.workManager,
+                connectivityObserver = asirTasksApplication().container.connectivityObserver
+            )
         }
-        // Initializer for TaskEntryViewModel
+
         initializer {
             TaskAddViewModel(asirTasksApplication().container.tasksRepository)
         }
@@ -23,6 +30,10 @@ object AppViewModelProvider {
                 this.createSavedStateHandle(),
                 asirTasksApplication().container.tasksRepository
             )
+        }
+
+        initializer {
+            LoginViewModel(asirTasksApplication().container.authRepository)
         }
     }
 }

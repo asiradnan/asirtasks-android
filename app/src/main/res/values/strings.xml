@@ -8,4 +8,5 @@
     <string name="no_tasks_yet">No tasks yet</string>
     <string name="mark_uncompleted">Mark uncompleted</string>
     <string name="mark_completed">Mark completed</string>
+    <string name="log_in">Log In</string>
 </resources>

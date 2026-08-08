@@ -10,7 +10,7 @@ import kotlin.jvm.java
 /**
  * Database class with a singleton Instance object.
  */
-@Database(entities = [Task::class], version = 6, exportSchema = false)
+@Database(entities = [Task::class], version = 8, exportSchema = false)
 abstract class AsirTasksDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDAO

@@ -1,6 +1,11 @@
 package com.asiradnan.asirtasks
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,19 +16,40 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Login
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -34,7 +60,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.asiradnan.asirtasks.auth.ui.LoginScreen
 import com.asiradnan.asirtasks.ui.HomeScreen
+import com.asiradnan.asirtasks.ui.SyncStatus
+import com.asiradnan.asirtasks.ui.SyncStatusIcon
 import com.asiradnan.asirtasks.ui.TaskAddScreen
 import com.asiradnan.asirtasks.ui.TaskEditScreen
 
@@ -42,6 +71,7 @@ enum class AsirTasksScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     TaskAdd(title = R.string.add_new_task),
     TaskEdit(title = R.string.edit_task),
+    Login(title = R.string.log_in)
 }
 
 @Composable
@@ -82,7 +112,8 @@ fun AsirTasksApp(
                 navigateToTaskAdd = { navController.navigate(AsirTasksScreen.TaskAdd.name) },
                 navigateToTaskEdit = {
                     navController.navigate("${AsirTasksScreen.TaskEdit.name}/${it}")
-                }
+                },
+                navigateToAuth = { navController.navigate(AsirTasksScreen.Login.name) }
             )
         }
         composable(route = AsirTasksScreen.TaskAdd.name) {
@@ -92,10 +123,17 @@ fun AsirTasksApp(
         }
         composable(
             route = "${AsirTasksScreen.TaskEdit.name}/{taskId}",
-            arguments = listOf(navArgument("taskId") { type = NavType.IntType })
+            arguments = listOf(navArgument("taskId") { type = NavType.StringType })
         ) {
             TaskEditScreen(
                 navigateBack = { navController.popBackStack() },
+            )
+        }
+        composable(route = AsirTasksScreen.Login.name) {
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.popBackStack()
+                }
             )
         }
     }
@@ -109,9 +147,21 @@ fun AsirTasksTopAppBar(
     navigateUp: () -> Unit = {},
     title: String,
     showSaveButton: Boolean = false,
+    disableSaveButton: Boolean = false,
     showDeleteButton: Boolean = false,
-    onActionClick: () -> Unit = {}
+    onActionClick: () -> Unit = {},
+    showUserButton: Boolean = false,
+    onUserClick: () -> Unit = {},
+    syncStatus: SyncStatus? = null,
+    onSyncClick: () -> Unit = {},
+    isLoggedIn: Boolean = false,
+    isDarkMode: Boolean = false,
+    onToggleTheme: () -> Unit = {},
+    onAuthClick: () -> Unit = {},
+    showMenuIcon: Boolean = false
 ) {
+    var showMenu by remember { mutableStateOf(false) }
+
     CenterAlignedTopAppBar(
         navigationIcon = {
             if (canNavigateBack) {
@@ -130,8 +180,44 @@ fun AsirTasksTopAppBar(
             )
         },
         actions = {
+            if (syncStatus != null) {
+                SyncStatusIcon(status = syncStatus, onClick = onSyncClick)
+            }
+            if (showMenuIcon)
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                }
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(if (isDarkMode) "Light Mode" else "Dark Mode") },
+                    leadingIcon = {
+                        Icon(
+                            if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            null
+                        )
+                    },
+                    onClick = {
+                        onToggleTheme()
+                        showMenu = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(if (isLoggedIn) "Logout" else "Login") },
+                    leadingIcon = {
+                        Icon(if (isLoggedIn) Icons.Default.Logout else Icons.Default.Login, null)
+                    },
+                    onClick = {
+                        onAuthClick()
+                        showMenu = false
+                    }
+                )
+            }
+
             if (showSaveButton)
-                IconButton(onClick = onActionClick) {
+                IconButton(onClick = onActionClick, enabled = !disableSaveButton) {
                     Icon(
                         Icons.Filled.Check,
                         contentDescription = stringResource(R.string.save_task)
@@ -144,6 +230,14 @@ fun AsirTasksTopAppBar(
                         contentDescription = stringResource(R.string.delete_task)
                     )
                 }
+            if (showUserButton) {
+                IconButton(onClick = onUserClick) {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "User Profile"
+                    )
+                }
+            }
 
         }
     )

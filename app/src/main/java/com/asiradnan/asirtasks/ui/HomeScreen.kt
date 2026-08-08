@@ -1,7 +1,5 @@
 package com.asiradnan.asirtasks.ui
 
-import android.R.attr.text
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,30 +14,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.CheckCircleOutline
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.Circle
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -61,30 +50,46 @@ import com.asiradnan.asirtasks.R
 import com.asiradnan.asirtasks.data.Task
 import com.asiradnan.asirtasks.util.toFormattedDate
 import com.asiradnan.asirtasks.util.toFormattedTime
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToTaskAdd: () -> Unit,
-    navigateToTaskEdit: (taskId: Int) -> Unit,
+    navigateToTaskEdit: (taskId: String) -> Unit,
+    navigateToAuth: () -> Unit,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val homeUiState by viewModel.homeUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val syncStatus by viewModel.syncStatus.collectAsState() // 1. Collect state
+    var showSyncDialog by remember { mutableStateOf(false) } // State for the tap dialog
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+    val isDarkModePref by viewModel.isDarkMode.collectAsState()
+    val effectiveDarkMode = isDarkModePref ?: androidx.compose.foundation.isSystemInDarkTheme()
+
+
 
     Scaffold(
-        topBar = { AsirTasksTopAppBar(title = "Tasks") },
+        topBar = {
+            AsirTasksTopAppBar(
+                title = "Tasks",
+                isLoggedIn = isLoggedIn,
+                isDarkMode = effectiveDarkMode,
+                onToggleTheme = { viewModel.toggleTheme(effectiveDarkMode) },
+                onAuthClick = {
+                    if (isLoggedIn) viewModel.logout() else navigateToAuth()
+                },
+                syncStatus = syncStatus,
+                onSyncClick = { showSyncDialog = true },
+                showMenuIcon = true
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = navigateToTaskAdd,
-                modifier = Modifier.size(60.dp)
+                modifier = Modifier.padding(8.dp).size(60.dp)
             ) {
                 Icon(
                     Filled.Add,
@@ -94,158 +99,148 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        HomeBody(
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refreshTasks() },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            taskList = homeUiState.taskList,
-            onTaskClick = navigateToTaskEdit,
-            onToggleTaskCompletion = { task, isCompleted ->
-                coroutineScope.launch {
-                    viewModel.toggleTaskCompletion(task, isCompleted)
-
+                .padding(innerPadding)
+        ) {
+            HomeBody(
+                modifier = Modifier.fillMaxSize(),
+                taskList = homeUiState.taskList,
+                onTaskClick = navigateToTaskEdit,
+                onToggleTaskCompletion = { task, isCompleted ->
+                    coroutineScope.launch {
+                        viewModel.toggleTaskCompletion(task, isCompleted)
+                    }
                 }
-            }
-        )
+            )
+        }
+        if (showSyncDialog) {
+            SyncStatusDialog(
+                status = syncStatus,
+                onDismiss = { showSyncDialog = false },
+                onLoginClick = { navigateToAuth() }
+            )
+        }
     }
-
 }
+
 
 @Composable
 fun HomeBody(
     modifier: Modifier = Modifier,
     taskList: List<Task>,
-    onTaskClick: (taskId: Int) -> Unit,
+    onTaskClick: (taskId: String) -> Unit,
     onToggleTaskCompletion: (task: Task, isCompleted: Boolean) -> Unit
 ) {
+    val completedTaskList = taskList.filter { it.isCompleted }
+    val incompletedTaskList = taskList.filter { !it.isCompleted }
+    var isCompletedExpanded by rememberSaveable { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier,
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(vertical = 12.dp)
     ) {
-        if (taskList.isEmpty())
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp)
-                    .clip(shape = RoundedCornerShape(12.dp))
-                    .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.no_tasks_yet),
-                    fontSize = 18.sp,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        else {
-            val completedTaskList = taskList.filter { it.isCompleted }
-            val incompletedTaskList = taskList.filter { !it.isCompleted }
-            var isCompletedExpanded by rememberSaveable { mutableStateOf(false) }
-
-            if (incompletedTaskList.isNotEmpty())
-                LazyColumn(
+        if (taskList.isEmpty()) {
+            item {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth(1f)
+                        .fillParentMaxSize()
                         .padding(horizontal = 12.dp)
                         .clip(shape = RoundedCornerShape(12.dp))
-                        .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                        .background(color = MaterialTheme.colorScheme.surfaceContainerLow),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    items(items = incompletedTaskList, key = { it.id }) { task ->
-                        TaskCard(
-                            task = task, modifier = Modifier.clickable { onTaskClick(task.id) },
-                            onCheckedChange = { isCompleted ->
-                                onToggleTaskCompletion(task, isCompleted)
-                            }
-                        )
-                    }
+                    Text(
+                        text = stringResource(R.string.no_tasks_yet),
+                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-            if (completedTaskList.isNotEmpty()) {
-                Spacer(Modifier.height(12.dp))
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth(1f)
-                        .padding(horizontal = 12.dp)
-                        .clip(shape = RoundedCornerShape(12.dp))
-                        .background(color = MaterialTheme.colorScheme.surfaceContainerHighest),
-                    contentPadding = PaddingValues(vertical = 8.dp)
-                ) {
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .clickable { isCompletedExpanded = !isCompletedExpanded }
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(
-                                text = "Completed (${completedTaskList.size})",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            if (isCompletedExpanded) Icon(
-                                Icons.Default.ExpandLess,
-                                contentDescription = "Collapse"
-                            )
-                            else Icon(Icons.Default.ExpandMore, contentDescription = "Expand")
-                        }
-                    }
-                    if (isCompletedExpanded)
-                        items(items = completedTaskList, key = { it.id }) { task ->
+            }
+        } else {
+            if (incompletedTaskList.isNotEmpty()) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .clip(shape = RoundedCornerShape(12.dp))
+                            .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
+                            .padding(vertical = 8.dp)
+                    ) {
+                        incompletedTaskList.forEach { task ->
                             TaskCard(
-                                task = task, modifier = Modifier.clickable { onTaskClick(task.id) },
+                                task = task,
+                                modifier = Modifier.clickable { onTaskClick(task.uuid) },
                                 onCheckedChange = { isCompleted ->
                                     onToggleTaskCompletion(task, isCompleted)
                                 }
                             )
                         }
+                    }
+                }
+            }
+            if (completedTaskList.isNotEmpty()) {
+                 if (incompletedTaskList.isNotEmpty())
+                     item { Spacer(Modifier.height(12.dp)) }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .clip(shape = RoundedCornerShape(12.dp))
+                            .background(color = MaterialTheme.colorScheme.surfaceContainerLow)
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .clickable { isCompletedExpanded = !isCompletedExpanded }
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Completed (${completedTaskList.size})",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Icon(
+                                imageVector = if (isCompletedExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = if (isCompletedExpanded) "Collapse" else "Expand"
+                            )
+                        }
+
+                        if (isCompletedExpanded) {
+                            completedTaskList.forEach { task ->
+                                TaskCard(
+                                    task = task,
+                                    modifier = Modifier.clickable { onTaskClick(task.uuid) },
+                                    onCheckedChange = { isCompleted ->
+                                        onToggleTaskCompletion(task, isCompleted)
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-//@Composable
-//fun CompletedList(
-//    modifier: Modifier = Modifier,
-//    completedTaskList: List<Task>,
-//    onTaskClick: (taskId: Int) -> Unit,
-//    onToggleTaskCompletion: (task: Task, isCompleted: Boolean) -> Unit
-//) {
-//    Column(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(12.dp)
-//            .clip(shape = RoundedCornerShape(12.dp))
-//            .background(color = MaterialTheme.colorScheme.surfaceContainerHighest)
-//    ) {
-//
-//        if (isCompletedExpanded)
-//            LazyColumn(
-//                modifier = Modifier
-//                    .padding(bottom = 12.dp),
-//                contentPadding = PaddingValues(bottom = 8.dp)
-//            ) {
-//                items(items = completedTaskList, key = { it.id }) { task ->
-//                    if (task.isCompleted) TaskCard(
-//                        task = task, modifier = Modifier.clickable { onTaskClick(task.id) },
-//                        onCheckedChange = { isCompleted ->
-//                            onToggleTaskCompletion(task, isCompleted)
-//                        }
-//
-//                    )
-//                }
-//            }
-//    }
-//
-//}
-
 @Composable
 fun TaskCard(
     modifier: Modifier = Modifier, task: Task,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         CircularCheckbox(
             checked = task.isCompleted,
             onCheckedChange = {
