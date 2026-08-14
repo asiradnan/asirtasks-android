@@ -31,6 +31,13 @@ class HomeViewModel(
 
     init {
         refreshTasks()
+        viewModelScope.launch {
+            authRepository.isLoggedIn.collect { loggedIn ->
+                if (loggedIn) {
+                    refreshTasks()
+                }
+            }
+        }
     }
 
     fun refreshTasks() {
