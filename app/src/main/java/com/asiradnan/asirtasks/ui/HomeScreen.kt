@@ -140,14 +140,14 @@ fun HomeBody(
     onTaskClick: (taskId: String) -> Unit,
     onToggleTaskCompletion: (task: Task, isCompleted: Boolean) -> Unit
 ) {
-    val completedTaskList = taskList.filter { it.isCompleted }
+    val completedTaskList = taskList.filter { it.isCompleted }.reversed()
     val incompletedTaskList = taskList.filter { !it.isCompleted }
     var isCompletedExpanded by rememberSaveable { mutableStateOf(false) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(vertical = 12.dp)
+        contentPadding = PaddingValues(vertical = 8.dp)
     ) {
         if (taskList.isEmpty()) {
             item {
@@ -258,7 +258,7 @@ fun TaskCard(
         Column(modifier = Modifier.padding(vertical = 8.dp)) {
             Text(
                 text = task.name,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else TextDecoration.None
                 ),
@@ -271,7 +271,7 @@ fun TaskCard(
                     Icon(
                         Icons.Default.AccessTime,
                         contentDescription = "time",
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(14.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(text = buildString {

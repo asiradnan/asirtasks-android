@@ -153,7 +153,7 @@ fun AsirTasksTopAppBar(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.headlineSmall
             )
         },
         actions = {
