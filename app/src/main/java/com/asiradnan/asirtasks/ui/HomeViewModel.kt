@@ -22,7 +22,7 @@ class HomeViewModel(
     private val tasksRepository: TasksRepository,
     private val authRepository: AuthRepository,
     private val userPreferencesManager: UserPreferencesManager,
-    workManager: WorkManager,
+    private val workManager: WorkManager,
     connectivityObserver: NetworkConnectivityObserver
 ) : ViewModel() {
 
@@ -30,7 +30,6 @@ class HomeViewModel(
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     init {
-        refreshTasks()
         viewModelScope.launch {
             authRepository.isLoggedIn.collect { loggedIn ->
                 if (loggedIn) {
@@ -49,6 +48,10 @@ class HomeViewModel(
                 _isRefreshing.value = false
             }
         }
+    }
+
+    fun cancelSync() {
+        workManager.cancelAllWorkByTag("SyncTag")
     }
 
 

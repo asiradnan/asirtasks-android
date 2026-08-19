@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDAO {
-    @Query("SELECT * from tasks WHERE isDeleted = 0 ORDER BY date IS NULL ASC, date ASC, time ASC")
+    @Query("SELECT * from tasks WHERE isDeleted = 0 ORDER BY date IS NULL ASC, date ASC, time IS NULL DESC, time ASC")
     fun getAllTasks(): Flow<List<Task>>
 
     @Query("SELECT * from tasks WHERE uuid = :uuid")

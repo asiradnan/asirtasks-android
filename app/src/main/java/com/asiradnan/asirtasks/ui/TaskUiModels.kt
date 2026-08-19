@@ -5,7 +5,8 @@ import java.util.UUID
 
 data class TaskUiState(
     val taskDetails: TaskDetails = TaskDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
+    val isSaving: Boolean = false
 )
 
 data class TaskDetails(

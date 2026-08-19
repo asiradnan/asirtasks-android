@@ -104,10 +104,12 @@ class SyncWorker(
 
                 Result.success()
             } catch (e: HttpException) {
-                if (e.code() == 401 || e.code() == 403)  Result.failure()
+                if (e.code() == 401 || e.code() == 403) return@withContext Result.failure()
                 Result.retry()
-            } catch (e: IOException) {
-                Result.retry()
+            } catch (_: IOException) {
+                Result.retry() // Retry on network errors
+            } catch (_: Exception) {
+                Result.failure() // Permanent failure for unknown errors
             }
         }
     }

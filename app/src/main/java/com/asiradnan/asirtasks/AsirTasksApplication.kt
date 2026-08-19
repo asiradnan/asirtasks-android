@@ -24,14 +24,14 @@ class AsirTasksApplication : Application() {
             .build()
 
         val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(15, TimeUnit.MINUTES)
-    .addTag("SyncTag")
-    .setConstraints(constraints)
-    .build()
+            .addTag("SyncTag")
+            .setConstraints(constraints)
+            .build()
 
-WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-    "PeriodicSync",
-    ExistingPeriodicWorkPolicy.KEEP,
-    syncRequest
-)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "PeriodicSync",
+            ExistingPeriodicWorkPolicy.KEEP,
+            syncRequest
+        )
     }
 }

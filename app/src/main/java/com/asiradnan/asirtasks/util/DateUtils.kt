@@ -70,3 +70,13 @@ fun Long.toTimeStr(): String {
     val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
     return formatter.format(date)
 }
+
+fun Long.normalizeToMidnight(): Long {
+    return Calendar.getInstance().apply {
+        timeInMillis = this@normalizeToMidnight
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}

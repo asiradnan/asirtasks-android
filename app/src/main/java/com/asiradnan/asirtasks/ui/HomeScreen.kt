@@ -92,6 +92,8 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = navigateToTaskAdd,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .padding(8.dp)
                     .size(60.dp)
@@ -126,7 +128,8 @@ fun HomeScreen(
             SyncStatusDialog(
                 status = syncStatus,
                 onDismiss = { showSyncDialog = false },
-                onLoginClick = { navigateToAuth() }
+                onLoginClick = { navigateToAuth() },
+                onCancelSync = { viewModel.cancelSync() }
             )
         }
     }

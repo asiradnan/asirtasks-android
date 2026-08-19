@@ -3,7 +3,6 @@ package com.asiradnan.asirtasks.data
 import DataStoreUserPreferencesManager
 import UserPreferencesManager
 import android.content.Context
-import android.util.Log
 import androidx.work.WorkManager
 import com.asiradnan.asirtasks.auth.data.AuthRepository
 import com.asiradnan.asirtasks.auth.data.DataStoreTokenManager
@@ -21,7 +20,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
-import kotlin.jvm.java
 
 
 interface AppContainer {
@@ -33,7 +31,7 @@ interface AppContainer {
     val authRepository: AuthRepository
     val userPreferencesManager: UserPreferencesManager
     val workManager: WorkManager
-val connectivityObserver: NetworkConnectivityObserver
+    val connectivityObserver: NetworkConnectivityObserver
 }
 
 private val json = Json {
@@ -51,10 +49,12 @@ class AppDataContainer(private val context: Context) : AppContainer {
         DataStoreTokenManager(context)
     }
 
-    private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+    private val baseOkHttpClientBuilder: OkHttpClient.Builder = OkHttpClient.Builder()
         .connectTimeout(120, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
         .writeTimeout(120, TimeUnit.SECONDS)
+
+    private val okHttpClient: OkHttpClient = baseOkHttpClientBuilder
         .addNetworkInterceptor { chain ->
             val response = chain.proceed(chain.request())
             if (response.code == 403) {
@@ -68,19 +68,16 @@ class AppDataContainer(private val context: Context) : AppContainer {
         }
         .addInterceptor(AuthInterceptor(tokenManager))
         .authenticator(TokenAuthenticator(tokenManager) { refreshToken ->
-            try {
-                authApiService.refreshToken(RefreshRequest(refreshToken))
-            } catch (e: Exception) {
-                Log.e("Authenticator", "Refresh failed", e)
-                null
-            }
+            authApiService.refreshToken(RefreshRequest(refreshToken))
         })
         .build()
+
+    private val authOkHttpClient: OkHttpClient = baseOkHttpClientBuilder.build()
 
     private val authRetrofit: Retrofit = Retrofit.Builder()
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .baseUrl(authBaseUrl)
-        .client(okHttpClient)
+        .client(authOkHttpClient) // Use clean client here
         .build()
 
     private val retrofit: Retrofit = Retrofit.Builder()

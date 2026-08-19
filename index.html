@@ -1,247 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asir Tasks – Privacy Policy</title>
-  <meta name="description" content="Privacy Policy for Asir Tasks – a task management app for Android." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Asir Tasks – Privacy Policy</title>
+    <meta name="description"
+          content="Privacy Policy for Asir Tasks – a task management app for Android."/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #0a0a0a;
-      color: #e0e0e0;
-      line-height: 1.7;
-    }
+        body {
+          font-family: 'Inter', system-ui, sans-serif;
+          background: #0a0a0a;
+          color: #e0e0e0;
+          line-height: 1.7;
+        }
 
-    a { color: #fff; }
+        a { color: #fff; }
 
-    /* NAV */
-    header {
-      border-bottom: 1px solid #222;
-      padding: 0 24px;
-    }
-    .nav-inner {
-      max-width: 720px; margin: auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 56px;
-    }
-    .brand { font-weight: 700; font-size: 1rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .brand-icon {
-      width: 28px; height: 28px; border-radius: 6px;
-      background: #fff; display: grid; place-items: center;
-    }
-    .brand-icon svg { width: 16px; height: 16px; fill: #0a0a0a; }
-    .nav-label { font-size: 0.78rem; color: #666; }
+        /* NAV */
+        header {
+          border-bottom: 1px solid #222;
+          padding: 0 24px;
+        }
+        .nav-inner {
+          max-width: 720px; margin: auto;
+          display: flex; align-items: center; justify-content: space-between;
+          height: 56px;
+        }
+        .brand { font-weight: 700; font-size: 1rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+        .brand-icon {
+          width: 28px; height: 28px; border-radius: 6px;
+          background: #fff; display: grid; place-items: center;
+        }
+        .brand-icon svg { width: 16px; height: 16px; fill: #0a0a0a; }
+        .nav-label { font-size: 0.78rem; color: #666; }
 
-    /* HERO */
-    .hero {
-      max-width: 720px; margin: auto;
-      padding: 72px 24px 48px;
-      border-bottom: 1px solid #222;
-    }
-    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; }
-    .hero p { color: #888; font-size: 0.95rem; max-width: 500px; }
-    .hero-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; font-size: 0.8rem; color: #555; }
+        /* HERO */
+        .hero {
+          max-width: 720px; margin: auto;
+          padding: 72px 24px 48px;
+          border-bottom: 1px solid #222;
+        }
+        .hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; }
+        .hero p { color: #888; font-size: 0.95rem; max-width: 500px; }
+        .hero-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; font-size: 0.8rem; color: #555; }
 
-    /* MAIN */
-    main { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
+        /* MAIN */
+        main { max-width: 720px; margin: 0 auto; padding: 0 24px 80px; }
 
-    /* SECTION */
-    .section {
-      border-bottom: 1px solid #1e1e1e;
-      padding: 36px 0;
-    }
-    .section:last-child { border-bottom: none; }
+        /* SECTION */
+        .section {
+          border-bottom: 1px solid #1e1e1e;
+          padding: 36px 0;
+        }
+        .section:last-child { border-bottom: none; }
 
-    .section h2 {
-      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
-      text-transform: uppercase; color: #666;
-      margin-bottom: 16px;
-    }
-    .section p { color: #aaa; font-size: 0.93rem; margin-bottom: 10px; }
-    .section p:last-child { margin-bottom: 0; }
-    .section strong { color: #ddd; font-weight: 500; }
+        .section h2 {
+          font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+          text-transform: uppercase; color: #666;
+          margin-bottom: 16px;
+        }
+        .section p { color: #aaa; font-size: 0.93rem; margin-bottom: 10px; }
+        .section p:last-child { margin-bottom: 0; }
+        .section strong { color: #ddd; font-weight: 500; }
 
-    ul.list {
-      list-style: none; padding: 0;
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    ul.list li {
-      color: #aaa; font-size: 0.93rem;
-      padding-left: 16px; position: relative;
-    }
-    ul.list li::before {
-      content: "–"; position: absolute; left: 0; color: #444;
-    }
+        ul.list {
+          list-style: none; padding: 0;
+          display: flex; flex-direction: column; gap: 8px;
+        }
+        ul.list li {
+          color: #aaa; font-size: 0.93rem;
+          padding-left: 16px; position: relative;
+        }
+        ul.list li::before {
+          content: "–"; position: absolute; left: 0; color: #444;
+        }
 
-    /* TABLE */
-    .data-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
-    .data-table th { text-align: left; padding: 8px 12px; color: #555; font-weight: 500; border-bottom: 1px solid #222; }
-    .data-table td { padding: 10px 12px; color: #999; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
-    .data-table tr:last-child td { border-bottom: none; }
-    .td-label { color: #ccc; }
+        /* TABLE */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
+        .data-table th { text-align: left; padding: 8px 12px; color: #555; font-weight: 500; border-bottom: 1px solid #222; }
+        .data-table td { padding: 10px 12px; color: #999; border-bottom: 1px solid #1a1a1a; vertical-align: top; }
+        .data-table tr:last-child td { border-bottom: none; }
+        .td-label { color: #ccc; }
 
-    /* CONTACT */
-    .contact { padding: 40px 0 0; }
-    .contact h2 { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 8px; }
-    .contact p { color: #888; font-size: 0.93rem; margin-bottom: 16px; }
-    .email-link {
-      display: inline-block;
-      border: 1px solid #333;
-      border-radius: 8px;
-      padding: 10px 20px;
-      color: #fff; text-decoration: none;
-      font-size: 0.9rem;
-      transition: border-color .15s, background .15s;
-    }
-    .email-link:hover { border-color: #666; background: #111; }
+        /* CONTACT */
+        .contact { padding: 40px 0 0; }
+        .contact h2 { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .contact p { color: #888; font-size: 0.93rem; margin-bottom: 16px; }
+        .email-link {
+          display: inline-block;
+          border: 1px solid #333;
+          border-radius: 8px;
+          padding: 10px 20px;
+          color: #fff; text-decoration: none;
+          font-size: 0.9rem;
+          transition: border-color .15s, background .15s;
+        }
+        .email-link:hover { border-color: #666; background: #111; }
 
-    /* FOOTER */
-    footer {
-      border-top: 1px solid #1a1a1a;
-      padding: 24px;
-      text-align: center;
-      font-size: 0.8rem; color: #444;
-    }
+        /* FOOTER */
+        footer {
+          border-top: 1px solid #1a1a1a;
+          padding: 24px;
+          text-align: center;
+          font-size: 0.8rem; color: #444;
+        }
 
-    @media (max-width: 540px) {
-      .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; }
-      .data-table thead { display: none; }
-      .data-table td { padding: 6px 0; border: none; }
-      .data-table td::before { content: attr(data-label); display: block; color: #555; font-size: 0.75rem; margin-bottom: 2px; }
-      .data-table tr { border-bottom: 1px solid #1a1a1a; padding: 12px 0; }
-    }
-  </style>
+        @media (max-width: 540px) {
+          .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; }
+          .data-table thead { display: none; }
+          .data-table td { padding: 6px 0; border: none; }
+          .data-table td::before { content: attr(data-label); display: block; color: #555; font-size: 0.75rem; margin-bottom: 2px; }
+          .data-table tr { border-bottom: 1px solid #1a1a1a; padding: 12px 0; }
+        }
+    </style>
 </head>
 <body>
 
 <header>
-  <div class="nav-inner">
-    <a class="brand" href="#">
+    <div class="nav-inner">
+        <a class="brand" href="#">
       <span class="brand-icon">
-        <svg viewBox="0 0 24 24"><path d="M4 5h2v2H4V5zm4 1h12v1H8V6zM4 9h2v2H4V9zm4 1h12v1H8v-1zm-4 4h2v2H4v-2zm4 1h12v1H8v-1z"/></svg>
+        <svg viewBox="0 0 24 24"><path
+                d="M4 5h2v2H4V5zm4 1h12v1H8V6zM4 9h2v2H4V9zm4 1h12v1H8v-1zm-4 4h2v2H4v-2zm4 1h12v1H8v-1z"/></svg>
       </span>
-      Asir Tasks
-    </a>
-    <span class="nav-label">Privacy Policy</span>
-  </div>
+            Asir Tasks
+        </a>
+        <span class="nav-label">Privacy Policy</span>
+    </div>
 </header>
 
 <div class="hero">
-  <h1>Privacy Policy</h1>
-  <p>Asir Tasks is a task manager that works entirely offline by default. This page explains what data the app handles and how.</p>
-  <div class="hero-meta">
-    <span>Effective: August 8, 2026</span>
-    <span>com.asiradnan.asirtasks</span>
-    <span>Developer: Asir Adnan</span>
-  </div>
+    <h1>Privacy Policy</h1>
+    <p>Asir Tasks is a task manager that works entirely offline by default. This page explains what
+        data the app handles and how.</p>
+    <div class="hero-meta">
+        <span>Effective: August 8, 2026</span>
+        <span>com.asiradnan.asirtasks</span>
+        <span>Developer: Asir Adnan</span>
+    </div>
 </div>
 
 <main>
 
-  <div class="section">
-    <h2>Overview</h2>
-    <p>Asir Tasks does not collect, share, or sell personal data. All your tasks are stored locally on your device. The internet connection is used only if you choose to log in and enable cloud sync.</p>
-  </div>
+    <div class="section">
+        <h2>Overview</h2>
+        <p>Asir Tasks does not collect, share, or sell personal data. All your tasks are stored
+            locally on your device. The internet connection is used only if you choose to log in and
+            enable cloud sync.</p>
+    </div>
 
-  <div class="section">
-    <h2>Data We Handle</h2>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Where stored</th>
-          <th>Sent to server?</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="td-label" data-label="Data">Task name, status, date &amp; time</td>
-          <td data-label="Where stored">On-device (Room database)</td>
-          <td data-label="Sent to server?">Only when logged in &amp; syncing</td>
-        </tr>
-        <tr>
-          <td class="td-label" data-label="Data">JWT access &amp; refresh tokens</td>
-          <td data-label="Where stored">On-device (DataStore)</td>
-          <td data-label="Sent to server?">Never</td>
-        </tr>
-        <tr>
-          <td class="td-label" data-label="Data">Username &amp; password</td>
-          <td data-label="Where stored">Not stored</td>
-          <td data-label="Sent to server?">At login only, not retained</td>
-        </tr>
-        <tr>
-          <td class="td-label" data-label="Data">Theme preference, last sync time</td>
-          <td data-label="Where stored">On-device (DataStore)</td>
-          <td data-label="Sent to server?">Never</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="section">
+        <h2>Data We Handle</h2>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Where stored</th>
+                <th>Sent to server?</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="td-label" data-label="Data">Task name, status, date &amp; time</td>
+                <td data-label="Where stored">On-device (Room database)</td>
+                <td data-label="Sent to server?">Only when logged in &amp; syncing</td>
+            </tr>
+            <tr>
+                <td class="td-label" data-label="Data">JWT access &amp; refresh tokens</td>
+                <td data-label="Where stored">On-device (DataStore)</td>
+                <td data-label="Sent to server?">Never</td>
+            </tr>
+            <tr>
+                <td class="td-label" data-label="Data">Username &amp; password</td>
+                <td data-label="Where stored">Not stored</td>
+                <td data-label="Sent to server?">At login only, not retained</td>
+            </tr>
+            <tr>
+                <td class="td-label" data-label="Data">Theme preference, last sync time</td>
+                <td data-label="Where stored">On-device (DataStore)</td>
+                <td data-label="Sent to server?">Never</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-  <div class="section">
-    <h2>Permissions</h2>
-    <p>The app requests one permission:</p>
-    <ul class="list">
-      <li><strong>INTERNET</strong> — used only to sync tasks with the cloud backend when you are logged in. No network requests are made while you are logged out.</li>
-    </ul>
-    <p style="margin-top:12px;">No access to camera, microphone, location, contacts, files, or SMS is requested.</p>
-  </div>
+    <div class="section">
+        <h2>Permissions</h2>
+        <p>The app requests one permission:</p>
+        <ul class="list">
+            <li><strong>INTERNET</strong> — used only to sync tasks with the cloud backend when you
+                are logged in. No network requests are made while you are logged out.
+            </li>
+        </ul>
+        <p style="margin-top:12px;">No access to camera, microphone, location, contacts, files, or
+            SMS is requested.</p>
+    </div>
 
-  <div class="section">
-    <h2>Cloud Sync (Optional)</h2>
-    <p>The app works fully offline without an account. If you sign in, your tasks are periodically synced to <strong>tasksbackend.asiradnan.com</strong> over HTTPS. The sync transmits task name, status, date, time, and a randomly generated UUID. Authentication is handled via <strong>accounts.asiradnan.com</strong>.</p>
-    <p>You can log out at any time. Logging out immediately clears all tokens from your device and stops all sync activity.</p>
-  </div>
+    <div class="section">
+        <h2>Cloud Sync (Optional)</h2>
+        <p>The app works fully offline without an account. If you sign in, your tasks are
+            periodically synced to <strong>tasksbackend.asiradnan.com</strong> over HTTPS. The sync
+            transmits task name, status, date, time, and a randomly generated UUID. Authentication
+            is handled via <strong>accounts.asiradnan.com</strong>.</p>
+        <p>You can log out at any time. Logging out immediately clears all tokens from your device
+            and stops all sync activity.</p>
+    </div>
 
-  <div class="section">
-    <h2>Authentication &amp; Security</h2>
-    <ul class="list">
-      <li>Authentication uses standard JWT Bearer tokens stored in Android DataStore.</li>
-      <li>All network traffic is encrypted over HTTPS.</li>
-      <li>Your password is never stored by the app — it is sent once during login and then discarded.</li>
-      <li>Tokens are cleared from the device when you log out.</li>
-    </ul>
-  </div>
+    <div class="section">
+        <h2>Authentication &amp; Security</h2>
+        <ul class="list">
+            <li>Authentication uses standard JWT Bearer tokens stored in Android DataStore.</li>
+            <li>All network traffic is encrypted over HTTPS.</li>
+            <li>Your password is never stored by the app — it is sent once during login and then
+                discarded.
+            </li>
+            <li>Tokens are cleared from the device when you log out.</li>
+        </ul>
+    </div>
 
-  <div class="section">
-    <h2>Data Deletion</h2>
-    <ul class="list">
-      <li>Deleting a task in the app removes it locally and propagates the deletion to the server on the next sync.</li>
-      <li>Uninstalling the app removes all local data from your device.</li>
-      <li>To request deletion of all cloud data tied to your account, email us at the address below.</li>
-    </ul>
-  </div>
+    <div class="section">
+        <h2>Data Deletion</h2>
+        <ul class="list">
+            <li>Deleting a task in the app removes it locally and propagates the deletion to the
+                server on the next sync.
+            </li>
+            <li>Uninstalling the app removes all local data from your device.</li>
+            <li>To request deletion of all cloud data tied to your account, email us at the address
+                below.
+            </li>
+        </ul>
+    </div>
 
-  <div class="section">
-    <h2>Third Parties</h2>
-    <p>We do not share your data with any third party for advertising or analytics. The app uses open-source libraries (Jetpack Compose, Room, Retrofit, WorkManager, DataStore) that operate entirely on-device and do not transmit data independently.</p>
-  </div>
+    <div class="section">
+        <h2>Third Parties</h2>
+        <p>We do not share your data with any third party for advertising or analytics. The app uses
+            open-source libraries (Jetpack Compose, Room, Retrofit, WorkManager, DataStore) that
+            operate entirely on-device and do not transmit data independently.</p>
+    </div>
 
-  <div class="section">
-    <h2>Children</h2>
-    <p>Asir Tasks is not directed at children under 13. We do not knowingly collect data from children.</p>
-  </div>
+    <div class="section">
+        <h2>Children</h2>
+        <p>Asir Tasks is not directed at children under 13. We do not knowingly collect data from
+            children.</p>
+    </div>
 
-  <div class="section">
-    <h2>Changes</h2>
-    <p>If this policy is updated, the effective date at the top of this page will change. Continued use of the app after changes means you accept the updated policy.</p>
-  </div>
+    <div class="section">
+        <h2>Changes</h2>
+        <p>If this policy is updated, the effective date at the top of this page will change.
+            Continued use of the app after changes means you accept the updated policy.</p>
+    </div>
 
-  <div class="contact">
-    <h2>Contact</h2>
-    <p>Questions about this policy or requests to delete your data:</p>
-    <a class="email-link" href="mailto:hello@asiradnan.com" id="contact-email">hello@asiradnan.com</a>
-  </div>
+    <div class="contact">
+        <h2>Contact</h2>
+        <p>Questions about this policy or requests to delete your data:</p>
+        <a class="email-link" href="mailto:hello@asiradnan.com" id="contact-email">hello@asiradnan.com</a>
+    </div>
 
 </main>
 
 <footer>
-  <p>© 2026 Asir Adnan · Asir Tasks · com.asiradnan.asirtasks</p>
+    <p>© 2026 Asir Adnan · Asir Tasks · com.asiradnan.asirtasks</p>
 </footer>
 
 </body>

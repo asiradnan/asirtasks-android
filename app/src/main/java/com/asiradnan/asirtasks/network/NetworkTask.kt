@@ -1,6 +1,7 @@
 package com.asiradnan.asirtasks.network
 
 import com.asiradnan.asirtasks.data.Task
+import com.asiradnan.asirtasks.util.normalizeToMidnight
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,7 +23,7 @@ fun NetworkTask.toEntity(): Task {
         uuid = this.uuid,
         name = this.name,
         isCompleted = this.isCompleted,
-        date = this.date,
+        date = this.date?.normalizeToMidnight(),
         time = this.time,
         modificationTime = this.modificationTime
     )

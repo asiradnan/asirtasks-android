@@ -54,7 +54,7 @@ class DefaultTasksRepository(
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                "PeriodicSync",
+                "ManualSync",
                 androidx.work.ExistingWorkPolicy.REPLACE,
                 oneTimeSyncRequest
             )

@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.asiradnan.asirtasks.data.Task
 import com.asiradnan.asirtasks.data.TasksRepository
 
 class TaskAddViewModel(private val tasksRepository: TasksRepository) : ViewModel() {
@@ -12,7 +11,10 @@ class TaskAddViewModel(private val tasksRepository: TasksRepository) : ViewModel
         private set
 
     suspend fun saveTask(): Boolean {
+        if (taskUiState.isSaving) return false
+
         return if (validateInput()) {
+            taskUiState = taskUiState.copy(isSaving = true)
             tasksRepository.addTask(taskUiState.taskDetails.toTask())
             true
         } else {

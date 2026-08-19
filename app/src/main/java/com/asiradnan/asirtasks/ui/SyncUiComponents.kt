@@ -43,7 +43,8 @@ fun SyncStatusIcon(status: SyncStatus, onClick: () -> Unit) {
         is SyncStatus.NotLoggedIn -> rememberVectorPainter(Icons.Default.PersonOff) to AppTheme.syncColors.muted
         is SyncStatus.Syncing -> rememberVectorPainter(Icons.Default.Sync) to MaterialTheme.colorScheme.onSurfaceVariant
         is SyncStatus.Offline -> painterResource(R.drawable.sync_saved_locally_off_24px) to AppTheme.syncColors.muted
-        is SyncStatus.Synced -> painterResource(R.drawable.sync_saved_locally_24px) to AppTheme.syncColors.synced
+        is SyncStatus.Synced -> painterResource(R.drawable.sync_saved_locally_24px) to MaterialTheme.colorScheme.onSurfaceVariant
+//                AppTheme.syncColors.synced
     }
 
     IconButton(onClick = onClick) {
@@ -60,7 +61,8 @@ fun SyncStatusIcon(status: SyncStatus, onClick: () -> Unit) {
 fun SyncStatusDialog(
     status: SyncStatus,
     onDismiss: () -> Unit,
-    onLoginClick: () -> Unit = {}
+    onLoginClick: () -> Unit = {},
+    onCancelSync: () -> Unit = {}
 ) {
     val title = when (status) {
         is SyncStatus.Synced -> "Sync Status"
@@ -77,6 +79,7 @@ fun SyncStatusDialog(
                 "Up to date.\nLast synced: ${status.lastSyncTime.toFormattedDate()} at ${status.lastSyncTime.toTimeStr()}"
             }
         }
+
         is SyncStatus.Syncing -> "Syncing…"
         is SyncStatus.NotLoggedIn -> "Tasks are saved on this device only.\nLog in to back them up and sync across devices."
         is SyncStatus.Offline -> "You are offline. Your changes will sync automatically when you're back online."
@@ -94,7 +97,9 @@ fun SyncStatusDialog(
             }
         },
         dismissButton = {
-            if (status is SyncStatus.NotLoggedIn) {
+            if (status is SyncStatus.Syncing) {
+                TextButton(onClick = onCancelSync) { Text("Cancel Sync") }
+            } else if (status is SyncStatus.NotLoggedIn) {
                 TextButton(onClick = onDismiss) { Text("Close") }
             }
         }

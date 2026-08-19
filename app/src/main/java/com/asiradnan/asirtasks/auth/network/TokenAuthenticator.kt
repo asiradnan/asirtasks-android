@@ -44,7 +44,12 @@ class TokenAuthenticator(
             }
 
             // 5. Try to refresh the token
-            val newTokens = runBlocking { refreshAction(refreshToken) }
+            val newTokens = try {
+                runBlocking { refreshAction(refreshToken) }
+            } catch (e: Exception) {
+                Log.e("TokenAuthenticator", "Network error during refresh", e)
+                return null // Return null to let the original 401 fail, but DON'T clear tokens
+            }
 
             return if (newTokens != null) {
                 // 6. Save new tokens and retry the request

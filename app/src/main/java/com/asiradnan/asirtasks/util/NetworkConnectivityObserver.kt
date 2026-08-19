@@ -17,15 +17,23 @@ class NetworkConnectivityObserver(context: Context) {
 
     val isConnected: Flow<Boolean> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) { launch { send(true) } }
-            override fun onLost(network: Network) { launch { send(false) } }
-            override fun onUnavailable() { launch { send(false) } }
+            override fun onAvailable(network: Network) {
+                launch { send(true) }
+            }
+
+            override fun onLost(network: Network) {
+                launch { send(false) }
+            }
+
+            override fun onUnavailable() {
+                launch { send(false) }
+            }
         }
         connectivityManager.registerDefaultNetworkCallback(callback)
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
     }
-    .onStart { emit(getCurrentConnectivityStatus()) } // Emit current status immediately
-    .distinctUntilChanged()
+        .onStart { emit(getCurrentConnectivityStatus()) } // Emit current status immediately
+        .distinctUntilChanged()
 
     private fun getCurrentConnectivityStatus(): Boolean {
         val network = connectivityManager.activeNetwork ?: return false

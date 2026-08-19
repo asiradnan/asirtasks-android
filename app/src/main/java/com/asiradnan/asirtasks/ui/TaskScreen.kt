@@ -53,13 +53,12 @@ import com.asiradnan.asirtasks.AsirTasksTopAppBar
 import com.asiradnan.asirtasks.R
 import com.asiradnan.asirtasks.util.getHourFromMillis
 import com.asiradnan.asirtasks.util.getMinuteFromMillis
+import com.asiradnan.asirtasks.util.normalizeToMidnight
 import com.asiradnan.asirtasks.util.toFormattedTime
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 @Composable
 fun TaskAddScreen(
@@ -73,7 +72,7 @@ fun TaskAddScreen(
             AsirTasksTopAppBar(
                 title = "Add new task",
                 showSaveButton = true,
-                disableSaveButton = !viewModel.taskUiState.isEntryValid,
+                disableSaveButton = !viewModel.taskUiState.isEntryValid || viewModel.taskUiState.isSaving,
                 onActionClick = {
                     coroutineScope.launch {
                         val saved = viewModel.saveTask()
@@ -270,17 +269,7 @@ fun TaskBody(
                         TextButton(onClick = {
                             val selectedDate =
                                 datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-
-                            // Normalize to midnight UTC so tasks on the same day have identical date values
-                            val normalizedDate =
-                                Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
-                                    timeInMillis = selectedDate
-                                    set(Calendar.HOUR_OF_DAY, 0)
-                                    set(Calendar.MINUTE, 0)
-                                    set(Calendar.SECOND, 0)
-                                    set(Calendar.MILLISECOND, 0)
-                                }.timeInMillis
-                            onValueChange(taskDetails.copy(date = normalizedDate))
+                            onValueChange(taskDetails.copy(date = selectedDate.normalizeToMidnight()))
                             showDatePicker = false
                         }) { Text("OK") }
                     },
