@@ -27,6 +27,15 @@ interface TaskDAO {
     @Delete
     suspend fun delete(task: Task)
 
+    @Delete
+    suspend fun deleteAll(tasks: List<Task>)
+
+    @androidx.room.Transaction
+    suspend fun applySyncChanges(upsertList: List<Task>, deleteList: List<Task>) {
+        deleteAll(deleteList)
+        upsertAll(upsertList)
+    }
+
     @Query("SELECT * FROM tasks WHERE isSynced = 0")
     suspend fun getUnsyncedTasks(): List<Task>
 

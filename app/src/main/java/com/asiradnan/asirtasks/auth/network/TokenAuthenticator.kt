@@ -46,9 +46,18 @@ class TokenAuthenticator(
             // 5. Try to refresh the token
             val newTokens = try {
                 runBlocking { refreshAction(refreshToken) }
+            } catch (e: retrofit2.HttpException) {
+                // If the refresh token itself is rejected (400, 401, 403), log out
+                if (e.code() in 400..403) {
+                    Log.e("TokenAuthenticator", "Refresh token expired/invalid. Forcing logout.")
+                    runBlocking { tokenManager.clearTokens() }
+                } else {
+                    Log.e("TokenAuthenticator", "Server error during refresh: ${e.code()}")
+                }
+                return null
             } catch (e: Exception) {
                 Log.e("TokenAuthenticator", "Network error during refresh", e)
-                return null // Return null to let the original 401 fail, but DON'T clear tokens
+                return null // Return null to let the original 401 fail, but DON'T clear tokens (e.g. offline)
             }
 
             return if (newTokens != null) {

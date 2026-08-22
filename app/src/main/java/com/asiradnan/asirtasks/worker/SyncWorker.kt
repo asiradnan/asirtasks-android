@@ -22,6 +22,7 @@ class SyncWorker(
         val container = (applicationContext as AsirTasksApplication).container
         val taskDao = container.taskDao
         val taskApiService = container.taskApiService
+        val alarmScheduler = com.asiradnan.asirtasks.util.AlarmScheduler(applicationContext)
 
         return withContext(Dispatchers.IO) {
             try {
@@ -34,17 +35,14 @@ class SyncWorker(
 
                 val localTasks = taskDao.getAllTasksSync()
                 val localTasksMap = localTasks.associateBy { it.uuid }
-                val tasksToUpdateLocally = mutableListOf<Task>()
+                val finalTasksToUpsert = mutableListOf<Task>()
+                val finalTasksToDelete = mutableListOf<Task>()
 
                 for (remoteTask in remoteTasks) {
                     val local = localTasksMap[remoteTask.uuid]
                     if (local == null || (remoteTask.modificationTime > local.modificationTime && local.isSynced)) {
-                        tasksToUpdateLocally.add(remoteTask.toEntity().copy(isSynced = true))
+                        finalTasksToUpsert.add(remoteTask.toEntity().copy(isSynced = true))
                     }
-                }
-
-                if (tasksToUpdateLocally.isNotEmpty()) {
-                    taskDao.upsertAll(tasksToUpdateLocally)
                 }
 
                 // PHASE 2: PUSH LOCAL CHANGES
@@ -68,12 +66,10 @@ class SyncWorker(
                                 "asiradnan",
                                 "UUID changed from ${task.uuid} to ${serverResponse.uuid}"
                             )
-                            taskDao.delete(task)
-                            taskDao.insert(
-                                serverResponse.toEntity().copy(isSynced = true)
-                            )
+                            finalTasksToDelete.add(task)
+                            finalTasksToUpsert.add(serverResponse.toEntity().copy(isSynced = true))
                         } else {
-                            taskDao.update(task.copy(isSynced = true))
+                            finalTasksToUpsert.add(task.copy(isSynced = true))
                         }
                     } catch (e: Exception) {
                         Log.e("SyncWorker", "Failed to sync task ${task.uuid}: ${e.message}")
@@ -85,10 +81,10 @@ class SyncWorker(
                 for (task in tasksToDelete) {
                     try {
                         taskApiService.deleteTask(task.uuid)
-                        taskDao.delete(task)
+                        finalTasksToDelete.add(task)
                     } catch (e: Exception) {
                         if (e is HttpException && e.code() == 404) {
-                            taskDao.delete(task)
+                            finalTasksToDelete.add(task)
                         }
                         Log.e("SyncWorker", "Failed to delete task ${task.uuid} on server")
                     }
@@ -96,10 +92,20 @@ class SyncWorker(
 
                 // PHASE 4: PULL DELETIONS
                 for (localTask in localTasks) {
-                    if (localTask.isSynced && !remoteTaskIds.contains(localTask.uuid)) taskDao.delete(
-                        localTask
-                    )
+                    if (localTask.isSynced && !remoteTaskIds.contains(localTask.uuid)) {
+                        finalTasksToDelete.add(localTask)
+                    }
                 }
+
+                // Apply all changes in a single transaction
+                if (finalTasksToUpsert.isNotEmpty() || finalTasksToDelete.isNotEmpty()) {
+                    taskDao.applySyncChanges(finalTasksToUpsert, finalTasksToDelete)
+
+                    // Update alarms for synced tasks
+                    finalTasksToUpsert.forEach { alarmScheduler.scheduleTaskNotification(it) }
+                    finalTasksToDelete.forEach { alarmScheduler.cancelTaskNotification(it) }
+                }
+
                 container.userPreferencesManager.saveLastSyncTime(System.currentTimeMillis())
 
                 Result.success()

@@ -259,17 +259,22 @@ fun TaskBody(
             }
 
             if (showDatePicker) {
+                val offset = java.util.TimeZone.getDefault().getOffset(System.currentTimeMillis())
+                val initialDate =
+                    taskDetails.date?.let { it + offset } ?: (System.currentTimeMillis() + offset)
+
                 val datePickerState = rememberDatePickerState(
-                    initialSelectedDateMillis = taskDetails.date ?: System.currentTimeMillis()
+                    initialSelectedDateMillis = initialDate
                 )
                 DatePickerDialog(
                     modifier = Modifier.scale(.85f),
                     onDismissRequest = { showDatePicker = false },
                     confirmButton = {
                         TextButton(onClick = {
-                            val selectedDate =
-                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                            onValueChange(taskDetails.copy(date = selectedDate.normalizeToMidnight()))
+                            val selectedUtc = datePickerState.selectedDateMillis ?: initialDate
+                            val localSelected =
+                                selectedUtc - java.util.TimeZone.getDefault().getOffset(selectedUtc)
+                            onValueChange(taskDetails.copy(date = localSelected.normalizeToMidnight()))
                             showDatePicker = false
                         }) { Text("OK") }
                     },

@@ -6,6 +6,7 @@ import androidx.work.Constraints
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.asiradnan.asirtasks.util.AlarmScheduler
 import com.asiradnan.asirtasks.worker.SyncWorker
 import kotlinx.coroutines.flow.Flow
 
@@ -14,12 +15,15 @@ class DefaultTasksRepository(
     private val context: Context
 ) : TasksRepository {
 
+    private val alarmScheduler = AlarmScheduler(context)
+
     override fun getAllTasksStream(): Flow<List<Task>> = taskDao.getAllTasks()
 
     override fun getTaskStream(uuid: String): Flow<Task?> = taskDao.getTask(uuid)
 
     override suspend fun addTask(task: Task) {
         taskDao.insert(task.copy(isSynced = false, modificationTime = System.currentTimeMillis()))
+        alarmScheduler.scheduleTaskNotification(task)
 //        refreshTasksFromServer()
     }
 
@@ -29,6 +33,7 @@ class DefaultTasksRepository(
             isSynced = false
         )
         taskDao.update(updatedTask)
+        alarmScheduler.scheduleTaskNotification(updatedTask)
 //        refreshTasksFromServer()
     }
 
@@ -39,6 +44,7 @@ class DefaultTasksRepository(
             modificationTime = System.currentTimeMillis()
         )
         taskDao.update(deletedTask)
+        alarmScheduler.cancelTaskNotification(deletedTask)
 //        refreshTasksFromServer()
     }
 

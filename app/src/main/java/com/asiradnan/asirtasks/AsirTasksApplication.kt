@@ -1,6 +1,9 @@
 package com.asiradnan.asirtasks
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -19,6 +22,8 @@ class AsirTasksApplication : Application() {
         super.onCreate()
         container = AppDataContainer(this)
 
+        createNotificationChannel()
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED) // Only sync when online
             .build()
@@ -33,5 +38,19 @@ class AsirTasksApplication : Application() {
             ExistingPeriodicWorkPolicy.KEEP,
             syncRequest
         )
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Task Reminders"
+            val descriptionText = "Notifications for due tasks"
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel("TASK_REMINDERS", name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }
